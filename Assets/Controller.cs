@@ -5,6 +5,7 @@ using UnityEngine;
 public class Controller : MonoBehaviour
 {
 	private CharacterController2D m_character;
+	private SpriteRenderer m_spriteRenderer;
 
 	private bool m_jumpButtonPressed = false;
 
@@ -13,10 +14,13 @@ public class Controller : MonoBehaviour
 
 	public float m_jumpHeight;
 
-    void Start()
+	void Start()
     {
 		m_character = GetComponent<CharacterController2D>();
-    }
+		m_character.OnVerticalCollision2D += this.OnCollision2D;
+
+		m_spriteRenderer = GetComponent<SpriteRenderer>();
+	}
 
 	void Update()
 	{
@@ -37,5 +41,17 @@ public class Controller : MonoBehaviour
 		}
 
 		m_jumpButtonPressed = false;
+	}
+
+	void OnCollision2D(int sign, RaycastHit2D hit)
+	{
+		if (sign == -1)
+		{
+			m_spriteRenderer.color = Color.red;
+		}
+		else
+		{
+			m_spriteRenderer.color = Color.green;
+		}
 	}
 }

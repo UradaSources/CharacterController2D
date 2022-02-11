@@ -18,6 +18,10 @@ public class CharacterController2D : MonoBehaviour
 {
 	private const float MinRayAdvance = 0.02f;
 
+	// Registrable events
+	public event Action<int, RaycastHit2D> OnHorizontalCollision2D;
+	public event Action<int, RaycastHit2D> OnVerticalCollision2D;
+
 	// necessary component
 	private BoxCollider2D m_collider;
 
@@ -29,8 +33,6 @@ public class CharacterController2D : MonoBehaviour
 
 	public bool m_useGravity = true;
 	public float m_gravityScale = 1.0f;
-
-	private UnityEvent m_event;
 
 	// update position based on speed
 	private void UpdatePosition()
@@ -150,6 +152,9 @@ public class CharacterController2D : MonoBehaviour
 			float snapPosition = hit.point.y - sign * (m_collider.size.y / 2);
 			this.position = new Vector2(this.position.x, snapPosition);
 
+			// call the registered callback
+			OnVerticalCollision2D?.Invoke(sign, hit);
+
 			// update collision flag
 			collisionFlag = true;
 		}
@@ -188,6 +193,9 @@ public class CharacterController2D : MonoBehaviour
 			float snapPosition = hit.point.x - sign * (m_collider.size.x / 2);
 			this.position = new Vector2(snapPosition, this.position.y);
 
+			// call the registered callback
+			OnHorizontalCollision2D?.Invoke(sign, hit);
+
 			// update snap flag
 			collisionFlag = true;
 		}
@@ -215,8 +223,8 @@ public class CharacterController2D : MonoBehaviour
 		return Mathf.Sqrt(2.0f * gravity * height);
 	}
 
-	private float m_jumpTimer = 0;
-	private float m_jumpInterval = 0.1f;
+	public float m_jumpTimer = 0;
+	public float m_jumpInterval = 0.1f;
 
 	// simple control
 	public void SimpleMove(int direction, float speed, float acceleration, float midairFactor = 0.2f, bool turn = true)
@@ -259,8 +267,6 @@ public class CharacterController2D : MonoBehaviour
 	{
 		this.position = transform.position;
 		m_collider = GetComponent<BoxCollider2D>();
-
-		
 	}
 
 	void FixedUpdate()
